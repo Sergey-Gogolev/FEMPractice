@@ -39,4 +39,5 @@ solve Poisson(u, v, solver=LU)
 
 // Отображение сетки
 plot(Th, wait=true);
-plot(u, fill=true, value=true, wait=true, ps="FreeFEMSolution.eps");
+plot(u, fill=true, value=true, wait=true, cmm="FreeFEMSolution");
+savepng("FreeFEMSolution.png"); 
