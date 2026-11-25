@@ -1,0 +1,42 @@
+
+// Создание равномерной квадратной сетки 20x20
+real x0 = 0.;
+real y0 = 0.;
+real x1 = 1.;
+real y1 = 1.;
+real kappa = 1.5;
+real q = 10;
+real p = 1;
+
+mesh Th = square(40, 40, [x0+(x1-x0)*x, y0+(y1-y0)*y]);
+
+fespace Vh(Th, P1);
+fespace Kh(Th, P0);
+Vh u, v;
+Kh k11, k12, k21, k22;
+
+k11 = ((x - 0.5)*(y - 0.5) > 0) ? 1 / kappa : kappa;
+k22 = (y < 0.5) ? kappa : 1 / kappa;
+k12 = 0; k21 = 0;
+
+func f = 0;
+
+solve Poisson(u, v, solver=LU)
+    = int2d(Th)(    // The bilinear part
+          (k11*dx(u) + k12*dy(u))*dx(v)
+        + (k21*dx(u) + k22*dy(u))*dy(v)
+    )
+    + int2d(Th)(
+        q * u * v
+    )
+    - int2d(Th)(    // The right hand side
+          f*v
+    )
+    - int1d(Th, 2, 4)(
+        p * v
+    )
+    + on(1, 3, u=0);
+
+// Отображение сетки
+plot(Th, wait=true);
+plot(u, fill=true, value=true, wait=true, ps="FreeFEMSolution.eps");
